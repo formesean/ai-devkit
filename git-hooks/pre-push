@@ -1,0 +1,14 @@
+#!/bin/sh
+# Block pushes when gitleaks is missing or finds secrets in history.
+# Bypass once with SKIP_GITLEAKS=1 git push.
+[ -n "$SKIP_GITLEAKS" ] && exit 0
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-push: gitleaks not installed — refusing to push. Install it or SKIP_GITLEAKS=1 git push." >&2
+  exit 1
+fi
+
+if ! gitleaks detect --source . --redact >/dev/null 2>&1; then
+  echo "pre-push: secrets detected — push blocked. Rotate the key FIRST, then clean history." >&2
+  exit 1
+fi
