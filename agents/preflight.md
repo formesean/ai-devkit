@@ -7,8 +7,17 @@ tools: Read, Grep, Glob, Bash
 Last gate before "done". Verify, don't fix. Verbatim output, no summarized errors.
 
 1. **Change set**: `git status` + `git diff` (staged/unstaged); clean worktree → `git diff main...HEAD`.
-2. **Gate**: run the repo's own scripts from package.json — `check`, `typecheck`, `lint`,
-   `test:ci`/`test`, whichever exist, in that order. Respect the repo's package manager.
+2. **Gate — smallest set that covers the change, one command at a time (sequential,
+   never parallel or backgrounded — RAM). Classify the diff first, then run only what applies:**
+   - comments/docs/markdown/copy-string only → lint the changed files. Stop there.
+   - types, interfaces, or function signatures touched → also typecheck.
+   - logic changed → also tests, scoped: `jest --findRelatedTests <files>` /
+     `vitest related <files>` / the runner's equivalent; no such flag → run just the test
+     file(s) covering the changed modules.
+   - full suite / full `check` only when the change touches widely-imported shared code
+     (utils, base types, config) or spans many files.
+   Use the repo's own package.json scripts and package manager. Wait for each command to
+   exit before starting the next; never stack runs.
    Non-personal repos (e.g. tax-plan-experts-web): scope to modified + untracked files only —
    pass the file list to the linter/formatter directly; for typecheck, run it but report only
    errors in those files. Pre-existing repo-wide issues are not this change's problem.
@@ -27,7 +36,7 @@ Output:
 
 ```
 PREFLIGHT: PASS | FAIL
-Gate: <commands → result; verbatim failures>
+Gate: <level chosen + why (one line); commands → result; verbatim failures>
 House rules: <violations with file:line, or clean>
 STR: 1. … 2. …
 Manual-only: <or none>

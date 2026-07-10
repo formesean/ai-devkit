@@ -7,10 +7,15 @@ description: End-of-change handoff — branch name, Conventional Commit message,
 
 ## Derive, don't assume
 
+Identify the repo first — conventions are per-repo, and the conversation may span several:
+
 ```bash
+basename "$(git rev-parse --show-toplevel)"; git remote get-url origin  # which repo this cwd is
 git branch -a | grep -v HEAD | tail -15   # the real prefix in use
 git log --oneline -10                      # the real commit style in use
 ```
+
+Run these in the directory of the files just changed, not wherever the shell happens to sit.
 
 - tax-plan-experts-web: prefix is always `tm/` (never Sean's initials). Ticket ID in branch
   when known: `tm/feat/tmi-2970-<kebab>`.
@@ -21,9 +26,11 @@ git log --oneline -10                      # the real commit style in use
 
 ## Gate first
 
-Run the repo's own checks from package.json (prefer `check`, then `typecheck`, `lint`, `test:ci`).
-Non-personal repos: scope to modified + untracked files only (lint those files directly; filter
-typecheck output to them). Red gate = no handoff; paste the failure verbatim instead.
+Run the smallest gate that covers the change (see house rules): docs/copy-only → lint changed
+files; types/signatures → also typecheck; logic → also scoped tests. One command at a time,
+sequentially — never parallel. Non-personal repos: scope to modified + untracked files only
+(lint those files directly; filter typecheck output to them). Red gate = no handoff; paste
+the failure verbatim instead.
 
 ## Handoff block
 
