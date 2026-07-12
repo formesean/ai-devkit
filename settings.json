@@ -83,7 +83,7 @@
     ],
     "ask": []
   },
-  "model": "opus",
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "SessionStart": [
       {
@@ -113,7 +113,7 @@
     "warp@claude-code-warp": true,
     "skill-creator@claude-plugins-official": true,
     "codex@openai-codex": true,
-    "ui-ux-pro-max@ui-ux-pro-max-skill": false,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true,
     "ponytail@ponytail": true
   },
   "extraKnownMarketplaces": {
@@ -161,7 +161,7 @@
     }
   },
   "alwaysThinkingEnabled": false,
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "autoUpdatesChannel": "latest",
   "autoMemoryEnabled": true,
   "skipDangerousModePermissionPrompt": true,
