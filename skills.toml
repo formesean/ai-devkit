@@ -1,0 +1,303 @@
+# Pinned upstream skills for the user catalog.
+
+[[skill]]
+name = "next-best-practices"
+repo = "https://github.com/vercel-labs/next-skills.git"
+ref = "31e6ebd130eb63a0310d04c66f7e8d4f2bdd3196"
+path = "skills/next-best-practices"
+frozen = true
+
+[[skill]]
+name = "next-cache-components"
+repo = "https://github.com/vercel-labs/next-skills.git"
+ref = "038954e07bfc313e97fa5f6ff7caf87226e4a782"
+path = "skills/next-cache-components"
+frozen = true
+
+[[skill]]
+name = "ui-diff"
+repo = "https://github.com/imuratalpay/ui-diff.git"
+ref = "9d511f63c99c81337f143051cd942e9e8dbfb32b"
+path = "skills/ui-diff"
+
+[[skill]]
+name = "app-intents"
+repo = "https://github.com/n0an/App-Intents-Agent-Skill.git"
+ref = "28542b9668390a09fea33c33edadd88d7e68f1d8"
+path = "app-intents"
+
+[[skill]]
+name = "asc-cli-usage"
+repo = "https://github.com/rorkai/app-store-connect-cli-skills.git"
+ref = "6d1c3c55fe4590fcbc3e3115de18c5721a73c23b"
+path = "skills/asc-cli-usage"
+
+[[skill]]
+name = "background-execution"
+repo = "https://github.com/n0an/Background-Execution-Agent-Skill.git"
+ref = "a29ddf879308bc6cb0d5add020533701baa7fe67"
+path = "background-execution"
+
+[[skill]]
+name = "core-data-expert"
+repo = "https://github.com/AvdLee/Core-Data-Agent-Skill.git"
+ref = "855ca7d0df50e82b00c12881dd9cd23c19ef5f49"
+path = "core-data-expert"
+
+[[skill]]
+name = "ios-accessibility"
+repo = "https://github.com/dadederk/iOS-Accessibility-Agent-Skill.git"
+ref = "dcc3a36ce1d0099341d545c1af4eb5a8c989bf66"
+path = "ios-accessibility"
+
+[[skill]]
+name = "ios-code-audit"
+repo = "https://github.com/jazzychad/ios-code-audit.git"
+ref = "34edb296a150915f8fcca69f27543af0c231c616"
+path = "."
+
+[[skill]]
+name = "ios-simulator-skill"
+repo = "https://github.com/conorluddy/ios-simulator-skill.git"
+ref = "86fb9ba90a438bd2ee7ab640165bd77da396d941"
+path = "ios-simulator-skill/skills/ios-simulator-skill"
+
+[[skill]]
+name = "observability"
+repo = "https://github.com/n0an/Observability-Agent-Skill.git"
+ref = "4ab4f371b03b2015767fbe9da7d4321293bfc377"
+path = "observability"
+
+[[skill]]
+name = "swift-api-design-guidelines-skill"
+repo = "https://github.com/Erikote04/Swift-API-Design-Guidelines-Agent-Skill.git"
+ref = "36cdc1b5680f5d6c5c52c353a6857d176f4929e8"
+path = "swift-api-design-guidelines-skill"
+
+[[skill]]
+name = "swift-architecture-skill"
+repo = "https://github.com/efremidze/swift-architecture-skill.git"
+ref = "60e177612f4ed9dc7799b3674830e594c76fa00c"
+path = "swift-architecture-skill"
+
+[[skill]]
+name = "swift-focusengine-pro"
+repo = "https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill.git"
+ref = "903d58d0ed03d4b85251d34dd96687eb822b3291"
+path = "."
+
+[[skill]]
+name = "swift-security-expert"
+repo = "https://github.com/ivan-magda/swift-security-skill.git"
+ref = "bda2e0ccee6a64d45ec2b93790d0876c90e4eb89"
+path = "swift-security-expert"
+
+[[skill]]
+name = "swiftdata-pro"
+repo = "https://github.com/twostraws/SwiftData-Agent-Skill.git"
+ref = "8051f177a0076e7fd45bdf4ee687b070ba58fdc6"
+path = "swiftdata-pro"
+
+[[skill]]
+name = "swiftui-expert-skill"
+repo = "https://github.com/AvdLee/SwiftUI-Agent-Skill.git"
+ref = "62bd760f005093d1e2e4de5db156e456a5f96400"
+path = "skills/swiftui-expert-skill"
+
+[[skill]]
+name = "swiftui-performance-audit"
+repo = "https://github.com/Dimillian/Skills.git"
+ref = "05ba982bfeb0d77d3c97d4542b0ee15034d05f84"
+path = "swiftui-performance-audit"
+
+[[skill]]
+name = "widgets"
+repo = "https://github.com/n0an/Widgets-Agent-Skill.git"
+ref = "06567e152df00df1db50a2935bbe62fda9e27c19"
+path = "widgets"
+
+[[skill]]
+name = "writing-for-interfaces"
+repo = "https://github.com/andrewgleave/skills.git"
+ref = "d6c72b885a1902d4b74d4bd9beca80f2a1b96b51"
+path = "writing-for-interfaces"
+
+[[skill]]
+name = "apple-design"
+repo = "https://github.com/emilkowalski/skill.git"
+ref = "64eb3deb9a5fbfa041faf783e0bc3fd635872e9c"
+path = "skills/apple-design"
+
+[[skill]]
+name = "boy-scout"
+repo = "https://github.com/ertugrul-dmr/clean-code-skills.git"
+ref = "1b6b3cc1264b8fbe921c65002d05a3bf90ede178"
+path = "skills/typescript/boy-scout"
+
+[[skill]]
+name = "clean-comments"
+repo = "https://github.com/ertugrul-dmr/clean-code-skills.git"
+ref = "1b6b3cc1264b8fbe921c65002d05a3bf90ede178"
+path = "skills/typescript/clean-comments"
+
+[[skill]]
+name = "clean-functions"
+repo = "https://github.com/ertugrul-dmr/clean-code-skills.git"
+ref = "1b6b3cc1264b8fbe921c65002d05a3bf90ede178"
+path = "skills/typescript/clean-functions"
+
+[[skill]]
+name = "clean-general"
+repo = "https://github.com/ertugrul-dmr/clean-code-skills.git"
+ref = "1b6b3cc1264b8fbe921c65002d05a3bf90ede178"
+path = "skills/typescript/clean-general"
+
+[[skill]]
+name = "clean-names"
+repo = "https://github.com/ertugrul-dmr/clean-code-skills.git"
+ref = "1b6b3cc1264b8fbe921c65002d05a3bf90ede178"
+path = "skills/typescript/clean-names"
+
+[[skill]]
+name = "clean-tests"
+repo = "https://github.com/ertugrul-dmr/clean-code-skills.git"
+ref = "1b6b3cc1264b8fbe921c65002d05a3bf90ede178"
+path = "skills/typescript/clean-tests"
+
+[[skill]]
+name = "improve-animations"
+repo = "https://github.com/emilkowalski/skill.git"
+ref = "64eb3deb9a5fbfa041faf783e0bc3fd635872e9c"
+path = "skills/improve-animations"
+
+[[skill]]
+name = "review-animations"
+repo = "https://github.com/emilkowalski/skill.git"
+ref = "64eb3deb9a5fbfa041faf783e0bc3fd635872e9c"
+path = "skills/review-animations"
+
+[[skill]]
+name = "typescript-clean-code"
+repo = "https://github.com/ertugrul-dmr/clean-code-skills.git"
+ref = "1b6b3cc1264b8fbe921c65002d05a3bf90ede178"
+path = "skills/typescript/typescript-clean-code"
+
+[[skill]]
+name = "appllama-usage"
+repo = "https://github.com/Appllama/appllama-skills.git"
+ref = "7682d2c38224e35366029dfac57e22d64d17f9f8"
+path = "skills/appllama-usage"
+
+[[skill]]
+name = "shadcn"
+repo = "https://github.com/shadcn-ui/ui.git"
+ref = "bfa64ff4d1cb7317d2403ecb176df6826d4caffc"
+path = "skills/shadcn"
+
+[[skill]]
+name = "appllama-app-design-skill"
+repo = "https://github.com/Appllama/appllama-skills.git"
+ref = "7682d2c38224e35366029dfac57e22d64d17f9f8"
+path = "skills/appllama-app-design-skill"
+
+[[skill]]
+name = "api-design"
+repo = "https://github.com/affaan-m/everything-claude-code.git"
+ref = "4adeee6732a12d1540f49a4d50a38ce8c97f9a53"
+path = "skills/api-design"
+
+[[skill]]
+name = "backend-patterns"
+repo = "https://github.com/affaan-m/everything-claude-code.git"
+ref = "4adeee6732a12d1540f49a4d50a38ce8c97f9a53"
+path = "skills/backend-patterns"
+
+[[skill]]
+name = "frontend-patterns"
+repo = "https://github.com/affaan-m/everything-claude-code.git"
+ref = "4adeee6732a12d1540f49a4d50a38ce8c97f9a53"
+path = "skills/frontend-patterns"
+
+[[skill]]
+name = "product-capability"
+repo = "https://github.com/affaan-m/everything-claude-code.git"
+ref = "4adeee6732a12d1540f49a4d50a38ce8c97f9a53"
+path = "skills/product-capability"
+
+[[skill]]
+name = "security-review"
+repo = "https://github.com/affaan-m/everything-claude-code.git"
+ref = "4adeee6732a12d1540f49a4d50a38ce8c97f9a53"
+path = "skills/security-review"
+
+[[skill]]
+name = "drizzle"
+repo = "https://github.com/lobehub/lobehub.git"
+ref = "b2ee8d5761cc59544b1886e5e15db6ae386ddf21"
+path = ".agents/skills/drizzle"
+
+[[skill]]
+name = "impeccable"
+repo = "https://github.com/pbakaus/impeccable.git"
+ref = "b49177d32788f2dc585c42831d845dacf1ebed2c"
+path = ".agents/skills/impeccable"
+
+[[skill]]
+name = "vercel-react-best-practices"
+repo = "https://github.com/vercel-labs/agent-skills.git"
+ref = "5a37a6329fbad3666c3207392a6a7c0110e92efb"
+path = "skills/react-best-practices"
+
+[[skill]]
+name = "swift-concurrency-pro"
+repo = "https://github.com/twostraws/Swift-Concurrency-Agent-Skill.git"
+ref = "bee3f69ba17142da148d3c5406f148ed62592b69"
+path = "swift-concurrency-pro"
+
+[[skill]]
+name = "swift-testing-pro"
+repo = "https://github.com/twostraws/Swift-Testing-Agent-Skill.git"
+ref = "2d6bba14a3c8bf3694f218b92fffe617c41ae43e"
+path = "swift-testing-pro"
+
+[[skill]]
+name = "coding-standards"
+repo = "https://github.com/affaan-m/everything-claude-code.git"
+ref = "4adeee6732a12d1540f49a4d50a38ce8c97f9a53"
+path = "skills/coding-standards"
+
+[[skill]]
+name = "supabase-postgres-best-practices"
+repo = "https://github.com/supabase/agent-skills.git"
+ref = "c9be0e931b7930f7d02126d04774d904c381e7d7"
+path = "skills/supabase-postgres-best-practices"
+
+[[skill]]
+name = "unslop"
+repo = "https://github.com/cursor/plugins.git"
+ref = "7a583913eb1b8d1a0ee76753d1a2cf072e7b54f9"
+path = "pstack/skills/unslop"
+
+[[skill]]
+name = "how"
+repo = "https://github.com/cursor/plugins.git"
+ref = "7a583913eb1b8d1a0ee76753d1a2cf072e7b54f9"
+path = "pstack/skills/how"
+
+[[skill]]
+name = "why"
+repo = "https://github.com/cursor/plugins.git"
+ref = "7a583913eb1b8d1a0ee76753d1a2cf072e7b54f9"
+path = "pstack/skills/why"
+
+[[skill]]
+name = "teach"
+repo = "https://github.com/cursor/plugins.git"
+ref = "7a583913eb1b8d1a0ee76753d1a2cf072e7b54f9"
+path = "pstack/skills/teach"
+
+[[skill]]
+name = "no-comments"
+repo = "https://github.com/cursor/plugins.git"
+ref = "7a583913eb1b8d1a0ee76753d1a2cf072e7b54f9"
+path = "pstack/skills/no-comments"

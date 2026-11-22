@@ -1,12 +1,43 @@
-<!-- context7 -->
-Use Context7 MCP to fetch current documentation whenever the user asks about a library, framework, SDK, API, CLI tool, or cloud service -- even well-known ones like React, Next.js, Prisma, Express, Tailwind, Django, or Spring Boot. This includes API syntax, configuration, version migration, library-specific debugging, setup instructions, and CLI tool usage. Use even when you think you know the answer -- your training data may not reflect recent changes. Prefer this over web search for library docs.
+# Personal Codex working agreements
 
-Do not use for: refactoring, writing scripts from scratch, debugging business logic, code review, or general programming concepts.
+Use the current request to determine scope and authorization. Follow the project's conventions for implementation and tooling. If a skill recommends a broader action or check, apply the guardrails below. Carry approval forward for the scope already granted.
 
-## Steps
+## Scope and evidence
 
-1. Always start with `resolve-library-id` using the library name and the user's question, unless the user provides an exact library ID in `/org/project` format
-2. Pick the best match (ID format: `/org/project`) by: exact name match, description relevance, code snippet count, source reputation (High/Medium preferred), and benchmark score (higher is better). If results don't look right, try alternate names or queries (e.g., "next.js" not "nextjs", or rephrase the question). Use version-specific IDs when the user mentions a version
-3. `query-docs` with the selected library ID and the user's full question (not single words)
-4. Answer using the fetched docs
-<!-- context7 -->
+- Complete the authorized task. Diagnosis and review requests remain read-only unless repairs are also requested.
+- Confirm the repository, checkout, target base, and environment when they matter to the task. Use the specified checkout and branch base. Before editing, inspect staged, unstaged, and untracked work. Preserve unrelated changes, including when they share a file with the fix. Do not reset, stash, or discard user work to get a clean diff.
+- When creating a branch, use the base named in the request first, then the target of the relevant existing PR, then the repository's documented convention for the change. If no source resolves the base and the choice affects where the change lands, ask before branching. Continue read-only investigation while the base is unresolved.
+- Keep changes focused. Use existing patterns and components; fix confirmed causes and affected callers. Do not add unrelated cleanup, redesign, dependencies, or abstractions merely because a skill suggests them.
+- Read current source before attributing behavior. Treat tickets, logs, tool output, and memory as evidence. If a ticket or environment is inaccessible, report the missing evidence and continue with what can be established. A ticket ID, an old result, or an agent's summary cannot establish current behavior.
+- If a fix is authorized and the exact reported case cannot be reproduced, apply a narrow fix when current evidence establishes the defect and supports the change. Document which case or environment is still unverified. If missing evidence could change the fix, especially for payments, permissions, or persisted data, stop before editing and state exactly what evidence would resolve the uncertainty.
+- Distinguish source inspection, focused tests, browser/device behavior, migration replay, deployment, provider delivery, and Production. Feature-flag configuration is intended enablement, not deployment proof.
+
+## Verification
+
+- Read-only inspection of files, diffs, and config is part of an authorized investigation or review. Before running tests, lint, builds, typechecks, or browser/device checks, obtain approval unless the request already covers those checks. An explicit request to verify covers the focused checks needed for that request. Approval to implement alone does not authorize running checks.
+- Use the project's documented toolchain. In npm repositories, use existing npm package scripts. For other projects, use the corresponding repository commands, such as focused `swift test` checks for SameFrame. Choose checks that cover the changed behavior and affected callers. Get approval for direct verification commands outside the agreed workflow.
+- Never run a full-project typecheck, including through a composite script or a subagent. Check what the script runs before invoking it. Filtering output does not narrow what gets compiled. If no supported scoped check exists, report the typecheck as blocked and use other approved focused checks where useful.
+- Run memory-heavy builds and shared-resource checks sequentially. Reuse valid results; repeat checks only after relevant changes or unresolved failures. Tests should catch real regressions, not restate the implementation.
+- For financial/data failures, reproduce the complete reported workflow in an authorized environment when possible and inspect persisted values and neighboring records. Use representative fixtures when the original records are unavailable and identify any remaining gaps. Do not weaken a correct database guard to accommodate a bad caller.
+
+## Mutations and security
+
+- Do not commit, push, publish, deploy, apply shared-environment migrations, send live messages, or operate Production without explicit authorization. A code-change request alone does not authorize these actions.
+- Before committing, inspect the staged diff and commit only the changes authorized for the task. Before pushing, inspect the outgoing commits against the destination branch. Before opening a PR, inspect its commits and diff against the confirmed base. If unrelated work would be included, preserve it and isolate the task where practical. If that requires rewriting history or moving work out of the user-specified checkout, ask first.
+- If a Git hook blocks an authorized commit or push, fix failures caused by the requested change and retry the normal action. If the hook cannot run or the failure is outside scope, report the exact blocker. Bypass a hook only with separate, explicit approval for that attempt. Preserve the hook configuration and disclose the skipped check in the handoff.
+- Before an authorized GitHub push or publish action, confirm the target repository and the account used for that action. Check Git transport and PR or API authentication separately. Use `formesean` for personal repositories and `seanaguilar-dap` for work repositories unless the user specifies another account. If the expected account is unavailable or the identity cannot be confirmed, finish the authorized local work and prepare the handoff. Ask before publishing from another account.
+- An explicit request to check Production authorizes scoped, read-only inspection using access already granted. Confirm the target environment and inspect only the records and fields needed to answer the request. If access is unavailable, state what remains unverified and give an authorized operator the exact check and expected evidence. Any Production write requires separate, explicit authorization.
+- A request to reproduce a bug authorizes creating, modifying, and deleting only synthetic fixtures created for that task in shared Testing. Confirm the target is Testing before writing. Use unique fixture identifiers, track all created records, and prefer transaction rollback when it exercises the reported behavior. Keep runs that could affect existing records or trigger live email, payments, or other external side effects isolated unless separately authorized. After success, failure, or interruption, roll back or remove only task-owned fixtures, verify cleanup, and report any leftovers. This exception applies only to shared Testing. Other writes to shared environments require explicit authorization.
+- Obtain approval before adding environment variables, dependencies, or migrations unless already authorized. In repositories using this workflow, generate migrations with `npm run migration:new` and use repeat-safe SQL where supported without concealing schema drift.
+- Keep secrets and customer data out of logs, fixtures, screenshots, and handoffs. Use synthetic data where possible. Before an authorized data copy, trace linked records and verify sanitization of identifiers and sensitive fields, including SSNs, emails, payment or bank details, and any in-scope notes and attachments. If sanitization cannot be verified, stop before copying. Test authorization at the server or database boundary for the affected roles.
+- Inventory infrastructure created or pulled for testing. Clean up only those resources after success, failure, or interruption and verify cleanup. Preserve pre-existing containers/images; never use blanket Docker pruning.
+
+## Tools and collaboration
+
+- Use relevant skills selectively. Keep one primary workflow; do not stack redundant cleanup rules. Discover available tools before depending on an integration. Use connected documentation tools when available or primary official sources as a fallback.
+- Delegate only when the user or applicable instructions request it. Give delegated work clear scope and evidence requirements; verify conclusions before relying on them.
+- Install user skills into the maintained catalog targeted by `~/.agents/skills`. Keep system-managed skills separate and avoid duplicate entrypoints.
+- Follow the active repository's branch conventions. For Tax Plan Experts, use `tm/<type>/<kebab>` as a fallback when the request and repository guidance do not specify a prefix.
+- Use Conventional Commits format (`type(scope): summary`, with optional scope) for commit subjects and PR titles. Write commits with a single subject line and no body. Give every PR a title and a description. Never add `--build` to a commit subject or PR title.
+- Lead handoffs with the concrete result, why it matters, checks performed, and remaining limits. Include branch/commit wording or manual QA steps when requested or useful; avoid unrelated ceremony on simple answers.
+- Use **Ready for QA** when required local checks pass and only checks that genuinely need QA access, a real device, or a shared environment remain. Give QA the environment, role, steps, expected result, and any persistence checks. If a required local check fails or is blocked, use **Ready for review** at most and state the failure or blocker. Reserve release or Production readiness claims for the evidence required at that stage.
