@@ -12,16 +12,16 @@ enabled = false
 
 [[skills.config]]
 name = "clean-functions"
-enabled = false
+enabled = true
 
 [[skills.config]]
 name = "clean-general"
-enabled = false
+enabled = true
 
 [[skills.config]]
 name = "clean-names"
-enabled = false
+enabled = true
 
 [[skills.config]]
 name = "clean-tests"
-enabled = false
+enabled = true

@@ -26,7 +26,7 @@ Existing nonmatching files, directories, and symlinks block setup rather than be
 ### Claude Code
 
 - `~/.claude/CLAUDE.md` links to the shared personal working agreements in `codex/AGENTS.md`.
-- `~/.claude/skills/` is a native directory with links to enabled catalog entries. Codex system skills and the seven disabled cleanup skills are excluded.
+- `~/.claude/skills/` is a native directory with links to enabled catalog entries. Codex system skills and the three disabled cleanup skills are excluded.
 - `~/.claude/agents/` links to Claude Markdown generated from the same TOML definitions used by Codex. The two audit agents keep the same instructions and cannot use Claude's native editing or delegation tools.
 - Claude's settings, plugin cache, and session files live in its own config directory. Existing private skill directories and guidance files are preserved. Name collisions stop setup with the conflicting path.
 
@@ -46,7 +46,7 @@ The retired `next-best-practices` and `next-cache-components` entries use their 
 
 Edit `plugins.toml` to manage the shared plugin set, including the workflow skills and harness distributed by `skills@formesean`. Each listed marketplace must support both clients. Run both installers after editing it or to refresh both native plugin caches. Client-bundled and separately installed plugins are managed by their client. Removing a plugin from the manifest does not uninstall it from either client. Both clients use the shared written guardrails and retain their native permission settings.
 
-The seven overlapping TypeScript cleanup skills are disabled by name in the managed policy. Ordinary fixes do not require an extra cleanup pass.
+The shared skill policy enables `clean-names`, `clean-functions`, `clean-general`, and `clean-tests`. It keeps `boy-scout`, `typescript-clean-code`, and `clean-comments` disabled to avoid mandatory extra cleanup and overlapping rules. Both installers apply this policy on every run. Upstream skill files stay unchanged; the personal working agreements govern task scope and verification.
 
 Plugin caches, accounts, and session history stay machine-local. Existing `git-hooks/` files are retained, but setup does not change `core.hooksPath`.
 

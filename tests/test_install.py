@@ -10,6 +10,15 @@ from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parent.parent
+CLEANUP_POLICY = {
+    "boy-scout": False,
+    "typescript-clean-code": False,
+    "clean-comments": False,
+    "clean-functions": True,
+    "clean-general": True,
+    "clean-names": True,
+    "clean-tests": True,
+}
 
 
 class InstallerTests(unittest.TestCase):
@@ -55,19 +64,45 @@ class InstallerTests(unittest.TestCase):
         self.assertFalse((self.home / ".gitconfig").exists())
         entries = tomllib.loads(self.config.read_text())["skills"]["config"]
         self.assertEqual(len(entries), 7)
-        self.assertTrue(all(entry["enabled"] is False for entry in entries))
+        self.assertEqual({entry["name"]: entry["enabled"] for entry in entries}, CLEANUP_POLICY)
 
     def test_existing_config_and_mode_survive_repeat_installs(self):
         original = 'model = "chosen-model"\n\n[plugins.custom]\nenabled = true\n'
-        self.write_config(original)
+        old_policy = (self.checkout / "codex/skill-policy.toml").read_text().replace("enabled = true", "enabled = false")
+        self.write_config(original + "\n# BEGIN ai-devkit skill policy\n" + old_policy + "# END ai-devkit skill policy\n")
         self.config.chmod(0o640)
         self.assertEqual(self.run_install().returncode, 0)
         first = self.config.read_bytes()
         self.assertTrue(first.startswith(original.rstrip("\n").encode()))
         self.assertEqual(tomllib.loads(first.decode())["plugins"]["custom"], {"enabled": True})
+        entries = tomllib.loads(first.decode())["skills"]["config"]
+        self.assertEqual({entry["name"]: entry["enabled"] for entry in entries}, CLEANUP_POLICY)
         self.assertEqual(self.config.stat().st_mode & 0o777, 0o640)
         self.assertEqual(self.run_install().returncode, 0)
         self.assertEqual(self.config.read_bytes(), first)
+
+    def test_claude_reenables_selected_cleanup_skills_on_repeat_installs(self):
+        for name in (*CLEANUP_POLICY, "no-comments"):
+            skill = self.checkout / "skills" / name / "SKILL.md"
+            skill.parent.mkdir(parents=True)
+            skill.write_text("fixture")
+        policy = self.checkout / "codex/skill-policy.toml"
+        current = policy.read_text()
+        command = ["bash", str(self.checkout / "install.sh"), "--claude", "--home", str(self.home), "--skip-plugins"]
+        policy.write_text(current.replace("enabled = true", "enabled = false"))
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        destination = self.home / ".claude/skills"
+        self.assertEqual({path.name for path in destination.iterdir()}, {"no-comments"})
+        policy.write_text(current)
+        for _ in range(2):
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            expected = {name for name, enabled in CLEANUP_POLICY.items() if enabled} | {"no-comments"}
+            self.assertEqual({path.name for path in destination.iterdir()}, expected)
+            for name in expected:
+                self.assertTrue((destination / name).is_symlink())
+                self.assertEqual((destination / name).resolve(), self.checkout / "skills" / name)
 
     def test_existing_custom_skill_directory_is_not_replaced(self):
         skill = self.home / ".agents/skills/custom/SKILL.md"
