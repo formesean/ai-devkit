@@ -30,6 +30,8 @@ Existing nonmatching files, directories, and symlinks block setup rather than be
 - `~/.claude/agents/` links to Claude Markdown generated from the same TOML definitions used by Codex. The two audit agents keep the same instructions and cannot use Claude's native editing or delegation tools.
 - Claude's settings, plugin cache, and session files live in its own config directory. Existing private skill directories and guidance files are preserved. Name collisions stop setup with the conflicting path.
 
+Upgrades from the previous installer migrate its guidance, agents, skills, and settings links. Setup moves the old settings into a private, regular file, keeps the permission rules, and removes the obsolete hook that expected settings to be a symlink. If the old source file is gone, setup recovers the last shipped copy from this checkout's Git history. A shallow checkout missing that revision must fetch the history or restore the old file before upgrading.
+
 Both installers accept `--home /path/to/disposable-home` to redirect client configuration. For a fully isolated setup, also run from a disposable checkout because the skill catalog and cache live in the checkout. Ordinary runs respect `CODEX_HOME` or `CLAUDE_CONFIG_DIR`. Start a new session after installation.
 
 ## Maintain

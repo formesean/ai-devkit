@@ -12,6 +12,58 @@ import tomllib
 from install_shared import ROOT, install_manifest_skills, show_header, sync_plugins
 
 
+# Last revision that shipped settings.json at the repository root.
+LEGACY_SETTINGS_REF = "97acab9503e04a508694aeccecc1e3d8951668f5"
+LEGACY_LINK_WARNING = (
+    '[ -L "$HOME/.claude/settings.json" ] || echo '
+    "'devkit: ~/.claude/settings.json is no longer a symlink into ai-devkit — re-run install.sh'"
+)
+
+
+def links_to(link, target):
+    return link.is_symlink() and Path(os.path.abspath(link.parent / link.readlink())) == target
+
+
+def legacy_settings(settings):
+    if not settings.is_symlink():
+        return None
+    source = ROOT / "settings.json"
+    if not links_to(settings, source):
+        raise ValueError(f"Conflicting settings link preserved: {settings}")
+    if source.exists():
+        original = source.read_text()
+    else:
+        try:
+            original = subprocess.check_output(
+                ["git", "-C", str(ROOT), "show", f"{LEGACY_SETTINGS_REF}:settings.json"],
+                text=True, stderr=subprocess.DEVNULL,
+            )
+        except subprocess.CalledProcessError as error:
+            raise ValueError(
+                f"Cannot recover {settings}. Restore the legacy settings file or fetch the "
+                f"checkout history containing {LEGACY_SETTINGS_REF}, then rerun setup."
+            ) from error
+    data = json.loads(original)
+    if not isinstance(data, dict):
+        raise ValueError(f"Expected a JSON object in legacy settings: {settings}")
+    hooks = data.get("hooks")
+    if isinstance(hooks, dict) and isinstance(hooks.get("SessionStart"), list):
+        for group in hooks["SessionStart"]:
+            if isinstance(group, dict) and isinstance(group.get("hooks"), list):
+                group["hooks"] = [
+                    hook for hook in group["hooks"]
+                    if hook != {"type": "command", "command": LEGACY_LINK_WARNING}
+                ]
+        hooks["SessionStart"] = [
+            group for group in hooks["SessionStart"] if group != {"hooks": []}
+        ]
+        if not hooks["SessionStart"]:
+            del hooks["SessionStart"]
+        if not hooks:
+            del data["hooks"]
+    return json.dumps(data, ensure_ascii=False, indent=2) + "\n"
+
+
 def install_agents(config_home):
     source = ROOT / "codex/agents"
     generated = config_home / "ai-devkit/agents"
@@ -29,16 +81,20 @@ def install_agents(config_home):
             f"---\n\n{agent['developer_instructions'].rstrip()}\n"
         )
 
-    if destination.is_symlink() or destination.exists() and not destination.is_dir():
-        raise ValueError(f"Conflicting agent directory preserved: {destination}")
-    for name in agents:
-        link = destination / name
-        if link.is_symlink() and link.readlink() == generated / name:
-            continue
-        if link.exists() or link.is_symlink():
-            raise ValueError(f"Existing agent preserved: {link}")
+    legacy = links_to(destination, ROOT / "agents")
+    if not legacy:
+        if destination.is_symlink() or destination.exists() and not destination.is_dir():
+            raise ValueError(f"Conflicting agent directory preserved: {destination}")
+        for name in agents:
+            link = destination / name
+            if link.is_symlink() and link.readlink() == generated / name:
+                continue
+            if link.exists() or link.is_symlink():
+                raise ValueError(f"Existing agent preserved: {link}")
 
     generated.mkdir(parents=True, exist_ok=True)
+    if legacy:
+        destination.unlink()
     destination.mkdir(parents=True, exist_ok=True)
     for name, content in agents.items():
         with tempfile.TemporaryDirectory(dir=generated) as temporary:
@@ -58,14 +114,17 @@ def install(config_home, locked):
     destination = config_home / "skills"
     guidance = config_home / "CLAUDE.md"
     guidance_source = ROOT / "codex/AGENTS.md"
+    old_guidance = links_to(guidance, ROOT / "CLAUDE.md")
     if guidance.is_symlink():
-        if guidance.resolve() != guidance_source:
+        if not old_guidance and guidance.resolve() != guidance_source:
             raise ValueError(f"Conflicting guidance link preserved: {guidance}")
     elif guidance.exists():
         raise ValueError(f"Existing guidance preserved: {guidance}")
     legacy = destination.is_symlink() and destination.resolve() == catalog
     if not legacy and (destination.is_symlink() or destination.exists() and not destination.is_dir()):
         raise ValueError(f"Conflicting skill directory preserved: {destination}")
+    settings = config_home / "settings.json"
+    recovered = legacy_settings(settings)
 
     install_manifest_skills(locked=locked)
     with (ROOT / "codex/skill-policy.toml").open("rb") as stream:
@@ -94,8 +153,23 @@ def install(config_home, locked):
         link = destination / name
         if not link.is_symlink():
             link.symlink_to(source, target_is_directory=True)
-    if not guidance.is_symlink():
+    if old_guidance:
+        with tempfile.TemporaryDirectory(dir=config_home) as temporary:
+            link = Path(temporary) / "CLAUDE.md"
+            link.symlink_to(guidance_source)
+            link.replace(guidance)
+    elif not guidance.is_symlink():
         guidance.symlink_to(guidance_source)
+    if recovered is not None:
+        with tempfile.NamedTemporaryFile(mode="w", dir=config_home, delete=False) as stream:
+            path = Path(stream.name)
+            try:
+                stream.write(recovered)
+                stream.close()
+                path.replace(settings)
+            finally:
+                path.unlink(missing_ok=True)
+        print("  Migrated legacy Claude settings to a local file.", flush=True)
 
 
 def main():

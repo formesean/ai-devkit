@@ -123,6 +123,75 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(sentinel.read_text(), "managed by Codex")
         self.assertFalse((self.home / ".codex/skills/.system").is_symlink())
 
+    def test_claude_migrates_legacy_links_and_recovers_settings(self):
+        config = self.home / ".claude"
+        config.mkdir()
+        catalog = self.checkout / "skills"
+        catalog.mkdir()
+        for name in ("CLAUDE.md", "agents", "skills", "settings.json"):
+            (config / name).symlink_to(self.checkout / name)
+        revision = "97acab9503e04a508694aeccecc1e3d8951668f5"
+        git = ["git", "-C", str(self.checkout)]
+        subprocess.run(git + ["init", "-q"], check=True)
+        subprocess.run(git + ["fetch", "-q", "--depth=1", str(ROOT), revision], check=True)
+        original = json.loads(subprocess.check_output(git + ["show", f"{revision}:settings.json"]))
+        command = ["bash", str(self.checkout / "install.sh"), "--claude", "--home", str(self.home), "--skip-plugins"]
+        for _ in range(2):
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual((config / "CLAUDE.md").resolve(), self.checkout / "codex/AGENTS.md")
+            self.assertFalse((config / "agents").is_symlink())
+            self.assertTrue((config / "agents/preflight.md").is_file())
+            self.assertTrue((config / "agents/ticket-auditor.md").is_file())
+            self.assertFalse((config / "skills").is_symlink())
+            self.assertTrue((config / "skills").is_dir())
+            settings = config / "settings.json"
+            self.assertFalse(settings.is_symlink())
+            self.assertEqual(settings.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(json.loads(settings.read_text()), {k: v for k, v in original.items() if k != "hooks"})
+
+    def test_claude_prefers_existing_legacy_settings_and_preserves_other_hooks(self):
+        config = self.home / ".claude"
+        config.mkdir()
+        source = self.checkout / "settings.json"
+        data = {"permissions": {"deny": ["Read(./private/**)"]}, "hooks": {"SessionStart": [
+            {"hooks": [{"type": "command", "command": "echo user-hook"}]},
+        ]}}
+        source.write_text(json.dumps(data))
+        settings = config / "settings.json"
+        settings.symlink_to(source)
+        result = subprocess.run(
+            ["bash", str(self.checkout / "install.sh"), "--claude", "--home", str(self.home), "--skip-plugins"],
+            capture_output=True, text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(settings.is_symlink())
+        self.assertEqual(json.loads(settings.read_text()), data)
+        self.assertEqual(json.loads(source.read_text()), data)
+
+    def test_claude_stops_on_foreign_or_unrecoverable_settings_links(self):
+        config = self.home / ".claude"
+        config.mkdir()
+        guidance = config / "CLAUDE.md"
+        guidance.symlink_to(self.checkout / "CLAUDE.md")
+        settings = config / "settings.json"
+        for target, message in [
+            (self.home / "foreign.json", "Conflicting settings link preserved"),
+            (self.checkout / "settings.json", "Cannot recover"),
+        ]:
+            with self.subTest(target=target):
+                settings.symlink_to(target)
+                result = subprocess.run(
+                    ["bash", str(self.checkout / "install.sh"), "--claude", "--home", str(self.home), "--skip-plugins"],
+                    capture_output=True, text=True,
+                )
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(message, result.stderr)
+                self.assertEqual(settings.readlink(), target)
+                self.assertEqual(guidance.readlink(), self.checkout / "CLAUDE.md")
+                self.assertFalse((config / "agents").exists())
+                settings.unlink()
+
     def test_checkout_without_bundled_system_skills_installs(self):
         checkout = self.checkout
         upstream = self.home / "upstream"
@@ -209,7 +278,7 @@ class InstallerTests(unittest.TestCase):
 
     def test_plugin_catalog_uses_each_clients_native_commands(self):
         (self.checkout / "plugins.toml").write_text(
-            '[[plugin]]\nid = "demo@sample"\nsource = "https://example.org/sample.git"\n'
+            '[[plugin]]\nid = "demo@sample"\nsource = "https://github.com/example/sample.git"\n'
         )
         spec = importlib.util.spec_from_file_location(
             "shared_installer", self.checkout / "scripts/install_shared.py"
@@ -218,14 +287,19 @@ class InstallerTests(unittest.TestCase):
         spec.loader.exec_module(shared)
         with patch.object(shared.subprocess, "check_output", side_effect=[
             json.dumps({"marketplaces": []}),
+            json.dumps([]),
+            json.dumps([]),
             json.dumps([{"name": "sample"}]),
             json.dumps([{"id": "demo@sample", "scope": "user"}]),
         ]), patch.object(shared.subprocess, "run") as execute:
             shared.sync_plugins("codex", self.home / ".codex")
             shared.sync_plugins("claude", self.home / ".claude")
+            shared.sync_plugins("claude", self.home / ".claude")
         self.assertEqual([call.args[0] for call in execute.call_args_list], [
-            ["codex", "plugin", "marketplace", "add", "https://example.org/sample.git"],
+            ["codex", "plugin", "marketplace", "add", "https://github.com/example/sample.git"],
             ["codex", "plugin", "add", "demo@sample"],
+            ["claude", "plugin", "marketplace", "add", "example/sample"],
+            ["claude", "plugin", "install", "demo@sample", "--scope", "user"],
             ["claude", "plugin", "marketplace", "update", "sample"],
             ["claude", "plugin", "update", "demo@sample", "--scope", "user"],
         ])

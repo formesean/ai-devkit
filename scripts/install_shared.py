@@ -53,7 +53,13 @@ def sync_plugins(client, config_home):
         _, market = selector.split("@", 1)
         if market not in refreshed:
             if market not in known:
-                run("marketplace", "add", plugin["source"])
+                source = plugin["source"]
+                if client == "claude":
+                    # Claude distinguishes GitHub shorthand from an equivalent Git URL.
+                    match = re.fullmatch(r"https://github\.com/([^/]+/[^/]+)\.git", source)
+                    if match:
+                        source = match[1]
+                run("marketplace", "add", source)
             else:
                 action = "upgrade" if client == "codex" else "update"
                 run("marketplace", action, market)
