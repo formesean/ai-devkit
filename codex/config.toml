@@ -1,59 +1,8 @@
-model = "gpt-5.5"
-model_reasoning_effort = "medium"
 approval_policy = "on-request"
-
-[plugins."context7@claude-plugins-official"]
-enabled = false
-
-[plugins."ponytail@ponytail"]
-enabled = true
-
-[mcp_servers.atlassian]
-url = "https://mcp.atlassian.com/v1/mcp"
 
 [features]
 memories = true
 prevent_idle_sleep = true
-multi_agent = true
 
 [tui]
-notification_condition = "always"
-status_line = [ "model-with-reasoning", "current-dir", "five-hour-limit" ]
-status_line_use_colors = true
-
-  [tui.model_availability_nux]
-  "gpt-5.5" = 4
-
-[shell_environment_policy]
-inherit = "core"
-
-  [shell_environment_policy.set]
-  DISABLE_TELEMETRY = "1"
-  CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL = "1"
-  CLAUDE_CODE_NO_FLICKER = "1"
-
-[marketplaces.academic-research-skills]
-last_updated = "2026-07-08T15:28:33Z"
-last_revision = "ad0a7759cee9e7d2db5ca7ea1666096dea8e5d3c"
-source_type = "git"
-source = "https://github.com/Imbad0202/academic-research-skills.git"
-
-[marketplaces.claude-plugins-official]
-last_updated = "2026-07-08T22:19:32Z"
-last_revision = "bd956f593ce6de664257f1cd658e9e3788f8ed5c"
-source_type = "git"
-source = "https://github.com/anthropics/claude-plugins-official.git"
-
-[marketplaces.hono-skill]
-last_updated = "2026-07-06T22:25:45Z"
-last_revision = "0d2e8dc6fa7e9c6e1c872abdb65db422e95e9de0"
-source_type = "git"
-source = "https://github.com/yusukebe/hono-skill.git"
-
-[marketplaces.ponytail]
-last_updated = "2026-07-08T22:34:54Z"
-source_type = "git"
-source = "https://github.com/DietrichGebert/ponytail.git"
-
-[notice.model_migrations]
-"gpt-5.4" = "gpt-5.5"
+status_line = ["model-with-reasoning", "current-dir", "five-hour-limit"]

@@ -1,0 +1,27 @@
+[[skills.config]]
+name = "boy-scout"
+enabled = false
+
+[[skills.config]]
+name = "typescript-clean-code"
+enabled = false
+
+[[skills.config]]
+name = "clean-comments"
+enabled = false
+
+[[skills.config]]
+name = "clean-functions"
+enabled = false
+
+[[skills.config]]
+name = "clean-general"
+enabled = false
+
+[[skills.config]]
+name = "clean-names"
+enabled = false
+
+[[skills.config]]
+name = "clean-tests"
+enabled = false

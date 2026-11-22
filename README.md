@@ -1,40 +1,53 @@
 # ai-devkit
 
-My portable Claude Code setup: house rules, settings, skills, agents, git hooks.
-`~/.claude` symlinks into this clone, so the repo is always the source of truth —
-edit here, commit, pull on other machines.
+My portable Codex and Claude Code setup, with one skill catalog and one list of shared plugins.
 
-## Fresh machine
+## Install
+
+Install the client CLI separately. Python 3.11 or newer and Git are required.
 
 ```sh
-# prerequisites: git, jq, claude (claude.ai/code), gitleaks
-git clone https://github.com/formesean/ai-devkit.git ~/ai-devkit
-cd ~/ai-devkit && ./install.sh
+./install.sh --codex
+./install.sh --claude
 ```
 
-`install.sh` is idempotent and does five things:
+Choose exactly one client per run. Each installer fetches missing skills and refreshes managed copies to the latest commit on each skill repository's default branch. Both installers sync the plugins listed in `plugins.toml` using their client's native CLI. Use `--skip-plugins` to set up skills and guidance only.
 
-1. Symlinks `CLAUDE.md`, `settings.json`, `agents/`, `skills/` into `~/.claude/`.
-2. Symlinks `git-hooks/` to `~/.config/git/hooks` and sets `core.hooksPath`
-   (gitleaks secret scan on every push, all repos).
-3. Adds every marketplace and installs every plugin declared in
-   `settings.json` (`extraKnownMarketplaces` + `enabledPlugins`) — no manual
-   searching in `/plugin`.
-4. Adds user-scope MCP servers (`atlassian`, `claude-design`).
-   Remote servers need a one-time `/mcp` authentication per machine.
-5. Codex CLI: symlinks `codex/{AGENTS.md,agents,prompts}` into `~/.codex/` and
-   seeds `~/.codex/config.toml` from `codex/config.toml` if none exists (seed
-   only — Codex rewrites that file with machine state, so it's never synced
-   back). Set `CONTEXT7_API_KEY` in your shell profile; the seed reads the
-   context7 MCP key from the environment so no secret lives in this repo.
-   Then `npm i -g @openai/codex && codex login`.
+### Codex
 
-Plugin caches (`~/.claude/plugins/`) are machine-local and never tracked.
+- `~/.codex/AGENTS.md` links to `codex/AGENTS.md`.
+- `~/.codex/agents` links to the native TOML definitions in `codex/agents`.
+- `~/.agents/skills` links to the single catalog in `skills`.
+- Existing system-managed skills under `~/.codex/skills/.system` are preserved. When a legacy system copy exists in the checkout, setup links it there without exposing the user catalog twice. A fresh checkout does not need bundled system skills.
+- Existing Codex configuration is preserved. Setup seeds a missing config and maintains only its marked skill-policy block, sourced from `codex/skill-policy.toml`.
 
-## Guardrails baked in
+Existing nonmatching files, directories, and symlinks block setup rather than being overwritten. Setup can migrate its own legacy `~/.codex/skills -> skills` link to the system-only layout. A separate existing `~/.agents/skills` directory must be reconciled before linking it.
 
-- A `SessionStart` hook warns if `~/.claude/settings.json` stops being a
-  symlink (an app rewrite would silently break the sync).
-- The pre-push hook blocks pushes when gitleaks is missing or finds secrets.
-  Bypass once with `SKIP_GITLEAKS=1 git push`. If a secret ever hit history:
-  rotate the key first.
+### Claude Code
+
+- `~/.claude/CLAUDE.md` links to the shared personal working agreements in `codex/AGENTS.md`.
+- `~/.claude/skills/` is a native directory with links to enabled catalog entries. Codex system skills and the seven disabled cleanup skills are excluded.
+- `~/.claude/agents/` links to Claude Markdown generated from the same TOML definitions used by Codex. The two audit agents keep the same instructions and cannot use Claude's native editing or delegation tools.
+- Claude's settings, plugin cache, and session files live in its own config directory. Existing private skill directories and guidance files are preserved. Name collisions stop setup with the conflicting path.
+
+Both installers accept `--home /path/to/disposable-home` to redirect client configuration. For a fully isolated setup, also run from a disposable checkout because the skill catalog and cache live in the checkout. Ordinary runs respect `CODEX_HOME` or `CLAUDE_CONFIG_DIR`. Start a new session after installation.
+
+## Maintain
+
+Edit personal rules in `codex/AGENTS.md`, agent roles in `codex/agents`, and skill content in `skills`. Keep repository-specific instructions in each project's own `AGENTS.md`. Add user skills to this catalog rather than another discovery root.
+
+List upstream skills in `skills.toml` with their repository, full commit SHA, and directory containing `SKILL.md`. Ignore each generated catalog entry in `.gitignore`. Add `--locked` after the client flag to install exactly the listed revisions, including offline when those revisions are cached. Set `frozen = true` on entries that should always use their listed revision. Setup caches the skill files in `.skill-cache/`, keeps existing links if a fetch fails, and leaves the manifest unchanged. Removing a manifest entry leaves its existing link in place for manual cleanup.
+
+Existing local skill directories take precedence. To switch an override to the pinned copy, move the local directory outside `skills/` before rerunning setup.
+
+The retired `next-best-practices` and `next-cache-components` entries use their last available upstream revisions. For current Next.js projects, use the version-matched docs and successor skills described in [Vercel's migration guide](https://github.com/vercel-labs/next-skills#where-each-old-skill-went).
+
+Edit `plugins.toml` to manage the shared plugin set, including the workflow skills and harness distributed by `skills@formesean`. Each listed marketplace must support both clients. Run both installers after editing it or to refresh both native plugin caches. Client-bundled and separately installed plugins are managed by their client. Removing a plugin from the manifest does not uninstall it from either client. Both clients use the shared written guardrails and retain their native permission settings.
+
+The seven overlapping TypeScript cleanup skills are disabled by name in the managed policy. Ordinary fixes do not require an extra cleanup pass.
+
+Plugin caches, accounts, and session history stay machine-local. Existing `git-hooks/` files are retained, but setup does not change `core.hooksPath`.
+
+## Verify
+
+Run `python3 -m unittest discover -s tests -v` for isolated installer regression checks. They cover config preservation, repeat runs, conflicts, and migration of the old skill link. No live installer run or model request is required.

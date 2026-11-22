@@ -1,0 +1,11 @@
+[[plugin]]
+id = "skills@formesean"
+source = "https://github.com/formesean/skills.git"
+
+[[plugin]]
+id = "ponytail@ponytail"
+source = "https://github.com/DietrichGebert/ponytail.git"
+
+[[plugin]]
+id = "ux-standards@personalized-ux-skills"
+source = "https://github.com/Lavelliane/personalized-ux-skills.git"
