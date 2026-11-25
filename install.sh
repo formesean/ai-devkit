@@ -12,7 +12,8 @@ Usage:
 Options:
   --home PATH     Use a different home directory for client configuration.
   --locked        Install the exact skill revisions in skills.toml.
-  --skip-plugins  Set up skills and guidance only.
+  --skip-plugins  Skip marketplace plugin sync.
+  --mobile-design Register the mobile design reference MCP servers.
   -h, --help      Show this help.'
 case "${1:-}" in
   --codex) installer=install_codex.py ;;

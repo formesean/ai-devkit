@@ -2,6 +2,7 @@ plugins/
 *.pre-devkit
 __pycache__/
 /.skill-cache/
+/skills/.system/
 /skills/next-best-practices
 /skills/next-cache-components
 /skills/ui-diff
@@ -52,3 +53,6 @@ __pycache__/
 /skills/why
 /skills/teach
 /skills/no-comments
+/skills/mobile-design-ios
+/skills/mobile-design-android
+/.mcp-cache/

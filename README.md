@@ -11,7 +11,7 @@ Install the client CLI separately. Python 3.11 or newer and Git are required.
 ./install.sh --claude
 ```
 
-Choose exactly one client per run. Each installer fetches missing skills and refreshes managed copies to the latest commit on each skill repository's default branch. Both installers sync the plugins listed in `plugins.toml` using their client's native CLI. Use `--skip-plugins` to set up skills and guidance only.
+Choose exactly one client per run. Each installer fetches missing skills and refreshes managed copies to the latest commit on each skill repository's default branch. Both installers sync the plugins listed in `plugins.toml` using their client's native CLI. Use `--skip-plugins` to skip marketplace plugin sync.
 
 ### Codex
 
@@ -27,12 +27,23 @@ Existing nonmatching files, directories, and symlinks block setup rather than be
 
 - `~/.claude/CLAUDE.md` links to the shared personal working agreements in `codex/AGENTS.md`.
 - `~/.claude/skills/` is a native directory with links to enabled catalog entries. Codex system skills and the three disabled cleanup skills are excluded.
-- `~/.claude/agents/` links to Claude Markdown generated from the same TOML definitions used by Codex. The two audit agents keep the same instructions and cannot use Claude's native editing or delegation tools.
+- `~/.claude/agents/` links to Claude Markdown generated from the same TOML definitions used by Codex. These agents cannot use Claude's native editing or delegation tools.
 - Claude's settings, plugin cache, and session files live in its own config directory. Existing private skill directories and guidance files are preserved. Name collisions stop setup with the conflicting path.
 
 Upgrades from the previous installer migrate its guidance, agents, skills, and settings links. Setup moves the old settings into a private, regular file, keeps the permission rules, and removes the obsolete hook that expected settings to be a symlink. If the old source file is gone, setup recovers the last shipped copy from this checkout's Git history. A shallow checkout missing that revision must fetch the history or restore the old file before upgrading.
 
 Both installers accept `--home /path/to/disposable-home` to redirect client configuration. For a fully isolated setup, also run from a disposable checkout because the skill catalog and cache live in the checkout. Ordinary runs respect `CODEX_HOME` or `CLAUDE_CONFIG_DIR`. Start a new session after installation.
+
+### Native mobile design
+
+The shared catalog includes `mobile-design-ios`, `mobile-design-android`, and the read-only `mobile-ux-researcher` agent. To add screenshot search for iOS and Android and ordered flow search for iOS, use:
+
+```sh
+./install.sh --codex --mobile-design
+./install.sh --claude --mobile-design
+```
+
+The MCP option requires Node.js and npm on PATH and preserves existing registrations with the same names. The Refero-backed server uses an upstream revision cached under `.mcp-cache/` and fetches screens and flows from Refero at runtime. Rerun setup after moving the checkout and remove the old `refero-design` registration first so it can be registered with the new path.
 
 ## Maintain
 

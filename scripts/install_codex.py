@@ -10,7 +10,7 @@ import tempfile
 import tomllib
 
 
-from install_shared import ROOT, install_manifest_skills, show_header, sync_plugins
+from install_shared import ROOT, install_manifest_skills, show_header, sync_mobile_design_mcp, sync_plugins
 START = "# BEGIN ai-devkit skill policy"
 END = "# END ai-devkit skill policy"
 
@@ -89,7 +89,8 @@ def main():
     parser = argparse.ArgumentParser(prog="./install.sh --codex", description=__doc__)
     parser.add_argument("--home", type=Path, help="Target a disposable or alternate home directory")
     parser.add_argument("--locked", action="store_true", help="Use the exact revisions in skills.toml")
-    parser.add_argument("--skip-plugins", action="store_true", help="Only set up guidance and skills")
+    parser.add_argument("--skip-plugins", action="store_true", help="Skip marketplace plugin sync")
+    parser.add_argument("--mobile-design", action="store_true", help="Also register mobile design MCP servers")
     args = parser.parse_args()
     home = (args.home or Path.home()).expanduser().resolve()
     codex_home = home / ".codex" if args.home else Path(os.environ.get("CODEX_HOME", str(home / ".codex"))).expanduser().resolve()
@@ -97,6 +98,8 @@ def main():
         show_header("Codex", codex_home)
         install(home, codex_home, locked=args.locked)
         print("\n[Config] Working agreements, agents, and skill policy are ready.", flush=True)
+        if args.mobile_design:
+            sync_mobile_design_mcp("codex", codex_home)
         if args.skip_plugins:
             print("\n[Plugins] Skipped (--skip-plugins).", flush=True)
         else:

@@ -341,6 +341,27 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(execute.call_args_list[0].kwargs["env"]["CODEX_HOME"], str(self.home / ".codex"))
         self.assertEqual(execute.call_args_list[-1].kwargs["env"]["CLAUDE_CONFIG_DIR"], str(self.home / ".claude"))
 
+    def test_mobile_mcp_preserves_existing_registration_and_adds_missing_server(self):
+        spec = importlib.util.spec_from_file_location(
+            "shared_installer", self.checkout / "scripts/install_shared.py"
+        )
+        shared = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(shared)
+        for client, scope in (("codex", []), ("claude", ["--scope", "user"])):
+            with self.subTest(client=client), patch.object(
+                shared, "install_refero_server", return_value=["tsx", "/cache/src/index.ts"]
+            ), patch.object(shared.subprocess, "run", side_effect=[
+                subprocess.CompletedProcess([], 0),
+                subprocess.CompletedProcess([], 1),
+                subprocess.CompletedProcess([], 0),
+            ]) as execute:
+                shared.sync_mobile_design_mcp(client, self.home / f".{client}")
+                self.assertEqual([call.args[0] for call in execute.call_args_list], [
+                    [client, "mcp", "get", "design-screenshots"],
+                    [client, "mcp", "get", "refero-design"],
+                    [client, "mcp", "add", *scope, "refero-design", "--", "tsx", "/cache/src/index.ts"],
+                ])
+
     def test_installer_requires_one_client(self):
         for flags in ([], ["--codex", "--claude"], ["--claude", "--codex"]):
             with self.subTest(flags=flags):
