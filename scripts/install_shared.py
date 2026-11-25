@@ -14,6 +14,8 @@ import tomllib
 
 
 ROOT = Path(__file__).resolve().parent.parent
+REFERO_REPO = "https://github.com/NerdBaba/Design-MCP.git"
+REFERO_REF = "b13d82a8d849e9a6a589a5f7cf90f3844514c20a"
 
 
 def show_header(client, config_home):
@@ -70,6 +72,48 @@ def sync_plugins(client, config_home):
             action = "update" if selector in installed else "install"
             run(action, selector, "--scope", "user")
         print(f"  Ready: {selector}", flush=True)
+
+
+def install_refero_server():
+    cache = ROOT / ".mcp-cache"
+    cache.mkdir(exist_ok=True)
+    server = cache / f"refero-{REFERO_REF}"
+    with (cache / "install.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        if not server.exists():
+            print("  Preparing the pinned Refero design server...", flush=True)
+            with tempfile.TemporaryDirectory(dir=cache) as temporary:
+                checkout = Path(temporary) / "server"
+                subprocess.run(["git", "init", "-q", checkout], check=True)
+                git = ["git", "-C", checkout]
+                subprocess.run(git + ["fetch", "-q", "--depth", "1", "--", REFERO_REPO, REFERO_REF], check=True)
+                subprocess.run(git + ["checkout", "-q", "--detach", REFERO_REF], check=True)
+                subprocess.run(
+                    ["npm", "ci", "--include=dev", "--ignore-scripts", "--no-audit", "--no-fund"],
+                    cwd=checkout, check=True,
+                )
+                checkout.rename(server)
+    return [str(server / "node_modules/.bin/tsx"), str(server / "src/index.ts")]
+
+
+def sync_mobile_design_mcp(client, config_home):
+    config_variable = "CODEX_HOME" if client == "codex" else "CLAUDE_CONFIG_DIR"
+    env = {**os.environ, config_variable: str(config_home)}
+    scope = [] if client == "codex" else ["--scope", "user"]
+    print("\n[MCP] Registering mobile design reference servers...", flush=True)
+    servers = {
+        "design-screenshots": lambda: ["npx", "--yes", "screenshots-design-inspiration-mcp@1.1.1"],
+        "refero-design": install_refero_server,
+    }
+    for name, command in servers.items():
+        cli = [client, "mcp"]
+        existing = subprocess.run(cli + ["get", name], env=env, cwd=ROOT, capture_output=True)
+        if existing.returncode == 0:
+            print(f"  Preserved existing registration: {name}", flush=True)
+            continue
+        if existing.returncode != 1:
+            existing.check_returncode()
+        subprocess.run(cli + ["add", *scope, name, "--", *command()], env=env, cwd=ROOT, check=True)
 
 
 def install_manifest_skills(locked=False):

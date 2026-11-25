@@ -301,3 +301,15 @@ name = "no-comments"
 repo = "https://github.com/cursor/plugins.git"
 ref = "7a583913eb1b8d1a0ee76753d1a2cf072e7b54f9"
 path = "pstack/skills/no-comments"
+
+[[skill]]
+name = "mobile-design-ios"
+repo = "https://github.com/ivan-magda/mobile-design-skills.git"
+ref = "400ea3f1b96744b6724612eea8b367ee5b1656c8"
+path = "mobile-design-ios"
+
+[[skill]]
+name = "mobile-design-android"
+repo = "https://github.com/ivan-magda/mobile-design-skills.git"
+ref = "400ea3f1b96744b6724612eea8b367ee5b1656c8"
+path = "mobile-design-android"

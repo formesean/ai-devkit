@@ -9,7 +9,7 @@ import subprocess
 import tempfile
 import tomllib
 
-from install_shared import ROOT, install_manifest_skills, show_header, sync_plugins
+from install_shared import ROOT, install_manifest_skills, show_header, sync_mobile_design_mcp, sync_plugins
 
 
 # Last revision that shipped settings.json at the repository root.
@@ -176,7 +176,8 @@ def main():
     parser = argparse.ArgumentParser(prog="./install.sh --claude", description=__doc__)
     parser.add_argument("--home", type=Path, help="Target a disposable or alternate home directory")
     parser.add_argument("--locked", action="store_true", help="Use the exact revisions in skills.toml")
-    parser.add_argument("--skip-plugins", action="store_true", help="Only set up guidance and skills")
+    parser.add_argument("--skip-plugins", action="store_true", help="Skip marketplace plugin sync")
+    parser.add_argument("--mobile-design", action="store_true", help="Also register mobile design MCP servers")
     args = parser.parse_args()
     home = (args.home or Path.home()).expanduser().resolve()
     config_home = home / ".claude" if args.home else Path(
@@ -186,6 +187,8 @@ def main():
         show_header("Claude Code", config_home)
         install(config_home, args.locked)
         print("\n[Config] Working agreements and agents are ready.", flush=True)
+        if args.mobile_design:
+            sync_mobile_design_mcp("claude", config_home)
         if args.skip_plugins:
             print("\n[Plugins] Skipped (--skip-plugins).", flush=True)
         else:
